@@ -15,3 +15,13 @@
 ```run command
     uvicorn app.main:app --reload --port 8001
 ```
+
+#### Base Features
+- FastAPI
+- Postgresql
+- SQLAlchemy
+- Albemic
+- JWT
+- Models (User, payroll)
+- CRUD (User, payroll)
+- Role based permission 
