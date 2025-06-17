@@ -16,3 +16,7 @@ def create_user(db: Session, user: UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def get_users(db: Session):
+    return db.query(User).all()

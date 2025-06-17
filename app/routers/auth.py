@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -50,5 +52,14 @@ def login(user: UserCreate, db: Session = Depends(get_db)):
     db_user = crud_user.get_user_by_email(db, user.email)
     if not db_user or not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
+    if not db_user.is_active:
+        raise HTTPException(status_code=403, detail="Inactive user")
     access_token = create_access_token({"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/users", response_model=List[UserOut])
+def users(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return crud_user.get_users(db)
