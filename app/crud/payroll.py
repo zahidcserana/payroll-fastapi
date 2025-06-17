@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.payroll import Payroll
@@ -5,6 +6,10 @@ from app.schemas.payroll import PayrollCreate
 
 
 def create_payroll(db: Session, employee_id: int, data: PayrollCreate):
+    existing = db.query(Payroll).filter_by(employee_id=employee_id, month=data.month).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Payroll already exists for this employee and month")
+
     net_salary = data.salary + data.bonus - data.tax
     record = Payroll(
         employee_id=employee_id,
@@ -13,7 +18,8 @@ def create_payroll(db: Session, employee_id: int, data: PayrollCreate):
         bonus=data.bonus,
         tax=data.tax,
         net_salary=net_salary,
-        date_generated=data.date_generated
+        date_generated=data.date_generated,
+        remarks=data.remarks  # ✅ Include remarks
     )
     db.add(record)
     db.commit()

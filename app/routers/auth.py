@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.auth.jwt import create_access_token
+from app.auth.roles import require_role
 from app.auth.security import verify_password
 from app.crud import user as crud_user
 from app.database import get_db
 from app.models.user import User
-from app.routers.payroll import get_current_user
 from app.schemas.user import UserCreate, UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -26,11 +26,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 def create(
         user: UserCreate,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user)
+        current_user: User = Depends(require_role(["admin"]))
 ):
-    if user.role == "admin" and (not current_user or current_user.role != "admin"):
-        raise HTTPException(status_code=403, detail="Only admins can create admin users")
-
     db_user = crud_user.get_user_by_email(db, user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -59,7 +56,5 @@ def login(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/users", response_model=List[UserOut])
-def users(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not authorized")
+def users(current_user: User = Depends(require_role(["admin"])), db: Session = Depends(get_db)):
     return crud_user.get_users(db)
