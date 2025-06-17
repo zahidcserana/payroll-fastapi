@@ -16,7 +16,7 @@
     uvicorn app.main:app --reload --port 8001
 ```
 
-#### Base Features
+#### Features
 - FastAPI
 - Postgresql
 - SQLAlchemy
@@ -24,4 +24,9 @@
 - JWT
 - Models (User, payroll)
 - CRUD (User, payroll)
-- Role based permission 
+- Role based permission
+
+#### Features next
+
+- Cron to make payrolls 5th for the last month for role employee
+- Method to bulk salary update for employees
