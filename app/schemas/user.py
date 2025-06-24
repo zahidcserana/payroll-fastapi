@@ -20,6 +20,16 @@ class UserOut(BaseModel):
         orm_mode = True
 
 
+class UserPayrollOut(BaseModel):
+    id: int
+    email: str
+    role: str
+    salary: float
+    is_active: bool
+
+    class Config:
+        orm_mode = True
+
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     salary: Optional[float] = None
@@ -28,3 +38,8 @@ class UserUpdate(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class SalaryUpdateItem(BaseModel):
+    employee_id: int
+    salary: float

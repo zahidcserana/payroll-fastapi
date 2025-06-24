@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     # JWT settings
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 24 * 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 24 * 60 * 30
 
     # Database components
     POSTGRES_USER: str

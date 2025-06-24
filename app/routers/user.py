@@ -9,9 +9,18 @@ from app.crud import user as crud_user
 from app.database import get_db
 from app.models.user import User
 from app.schemas.payroll import PayrollOut
-from app.schemas.user import UserUpdate, UserOut
+from app.schemas.user import UserUpdate, UserOut, SalaryUpdateItem, UserPayrollOut
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.put("/bulk-salary", response_model=List[UserPayrollOut])
+def bulk_salary_update(
+        updates: List[SalaryUpdateItem],
+        db: Session = Depends(get_db),
+        current_user: User = Depends(require_role(["admin"]))
+):
+    return crud_user.bulk_update_salaries(db, updates)
 
 
 @router.put("/{user_id}", response_model=UserOut)

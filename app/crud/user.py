@@ -1,10 +1,12 @@
+from typing import List
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
 from app.auth.security import get_password_hash
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate, UserUpdate, SalaryUpdateItem
 
 
 def get_user_by_email(db: Session, email: str):
@@ -44,3 +46,17 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate):
     db.commit()
     db.refresh(user)
     return user
+
+
+def bulk_update_salaries(db: Session, updates: List[SalaryUpdateItem]):
+    updated_users = []
+
+    for item in updates:
+        user = db.query(User).filter(User.id == item.employee_id).first()
+        if not user:
+            continue  # or raise an error if strict
+        user.salary = item.salary
+        updated_users.append(user)
+
+    db.commit()
+    return updated_users
