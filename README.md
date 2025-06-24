@@ -16,6 +16,13 @@
     uvicorn app.main:app --reload --port 8001
 ```
 
+```packages
+    pip install celery[redis]
+    pip install "celery[redis]" "celery[beat]"
+    celery -A app.core.celery_worker.celery_app beat --loglevel=info
+
+```
+
 #### Features
 - FastAPI
 - Postgresql
@@ -25,8 +32,8 @@
 - Models (User, payroll)
 - CRUD (User, payroll)
 - Role based permission
+- Celery
 
 #### Features next
 
-- Cron to make payrolls 5th for the last month for role employee
-- Method to bulk salary update for employees
+- More filer on Payroll list

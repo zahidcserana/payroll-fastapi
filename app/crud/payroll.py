@@ -1,4 +1,8 @@
+from datetime import date, timedelta
+from typing import Optional
+
 from fastapi import HTTPException
+from sqlalchemy import extract
 from sqlalchemy.orm import Session
 
 from app.models.payroll import Payroll
@@ -31,5 +35,18 @@ def get_payrolls_by_employee(db: Session, employee_id: int):
     return db.query(Payroll).filter(Payroll.employee_id == employee_id).all()
 
 
-def get_all_payrolls(db: Session):
-    return db.query(Payroll).all()
+def get_all_payrolls(db: Session, month: Optional[str] = None):
+    if month:
+        year, month = map(int, month.split("-"))
+    else:
+        today = date.today()
+        first_day_this_month = today.replace(day=1)
+        last_month = first_day_this_month - timedelta(days=1)
+        year = last_month.year
+        month = last_month.month
+
+    return db.query(Payroll) \
+        .filter(
+        extract('year', Payroll.month) == year,
+        extract('month', Payroll.month) == month
+    ).all()

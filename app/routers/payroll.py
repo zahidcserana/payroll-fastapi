@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,7 @@ from app.crud import payroll as crud_payroll
 from app.database import get_db
 from app.models.user import User
 from app.schemas.payroll import PayrollCreate, PayrollOut
+from app.services.payroll_service import generate_monthly_payrolls
 
 # router = APIRouter(prefix="/payrolls", tags=["payroll"])
 router = APIRouter(
@@ -29,6 +30,19 @@ def create(
     return crud_payroll.create_payroll(db, data.employee_id, data)
 
 
-@router.get("/", response_model=List[PayrollOut])
-def all_payrolls(current_user: User = Depends(require_role(["admin"])), db: Session = Depends(get_db)):
+@router.post("/generate", response_model=List[PayrollOut])
+def generate(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(require_role(["admin"]))
+):
+    generate_monthly_payrolls(db)
     return crud_payroll.get_all_payrolls(db)
+
+
+@router.get("/", response_model=List[PayrollOut])
+def list_payrolls(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(require_role(["admin"])),
+        month: Optional[str] = Query(None, example="2025-06")
+):
+    return crud_payroll.get_all_payrolls(db, month)
